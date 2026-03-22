@@ -20,6 +20,7 @@ namespace EcommerceInfrastructure.Repository
         }
 
         public async Task<PaginatedList<TResult>> GetPagedAsync<TResult>(
+  
             int pageNumber,
             int pageSize,
             Expression<Func<T, bool>>? filter = null,
@@ -30,7 +31,7 @@ namespace EcommerceInfrastructure.Repository
 
             if (filter != null)
                 query = query.Where(filter);
-
+         
             var totalCount = await query.CountAsync(cancellationToken);
 
             if (orderBy != null)

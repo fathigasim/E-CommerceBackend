@@ -128,7 +128,11 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 app.UseAuthentication();
-app.UseAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOrUser", policy =>
+        policy.RequireRole("Admin", "User"));
+});
 app.MapControllers();
 
 app.Run();

@@ -17,10 +17,10 @@ namespace MediaRTutorial.Controllers
             _mediator = mediator;
         }
         [HttpGet("PagedProducts")]
-        public async Task<IActionResult> GetAllProductsPaginatedAsync(int pageNumber, int pageSize)
-        {
+        public async Task<IActionResult> GetAllProductsPaginatedAsync(string? q,Guid?categoryId, int pageNumber, int pageSize)
+ {
 
-            return Ok(await _mediator.Send(new GetPaginatedProductsQuery(pageNumber, pageSize)));
+            return Ok(await _mediator.Send(new GetPaginatedProductsQuery(q,categoryId,pageNumber, pageSize)));
         }
         [HttpGet("AllProducts")]
         public async Task<IActionResult> GetAllProductsAsync()

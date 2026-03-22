@@ -12,27 +12,13 @@ namespace EcommerceInfrastructure.Repository
          
     {
         public ProductRepository(AppDbContext context, IMapper mapper) : base(context, mapper) { }
-        public async Task<(IReadOnlyList<Product>,int )> GetPagedAsync(int pageNumber,int pageSize, CancellationToken cancellationToken = default)
-       
-        {
-            var query = _context.Products.AsNoTracking();
-
-            var totalCount = await query.CountAsync();
-
-            var items = await query
-                .OrderBy(p => p.CreatedAt) // ALWAYS order before Skip
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync(cancellationToken);
-            return (items,totalCount);
-        }
 
         public async Task<IReadOnlyList<Product>> GetProductsByIdAsync(
-         IEnumerable < Guid> prodIds, CancellationToken cancellationToken = default)
+         IEnumerable<Guid> prodIds, CancellationToken cancellationToken = default)
         {
             return await _context.Products
-               
-                .Where(p =>prodIds.Contains(p.Id))
+
+                .Where(p => prodIds.Contains(p.Id))
                 //.AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
