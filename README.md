@@ -1,11 +1,11 @@
-# 🛒 E-Commerce API (ASP.NET Core)
+#  E-Commerce API (ASP.NET Core)
 
-## 📌 Overview
+##  Overview
 This is a scalable e-commerce backend built using ASP.NET Core following Clean Architecture and CQRS principles. It provides secure RESTful APIs for managing products, authentication, orders, and payments.
 
 ---
 
-## 🚀 Features
+##  Features
 
 - Clean Architecture (Domain, Application, Infrastructure, API)
 - CQRS pattern using MediatR
@@ -19,7 +19,7 @@ This is a scalable e-commerce backend built using ASP.NET Core following Clean A
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 API Layer
 │
@@ -29,7 +29,7 @@ API Layer
 
 ---
 
-## 🔐 Authentication & Authorization
+##  Authentication & Authorization
 
 - JWT-based authentication
 - Refresh token implementation
@@ -37,14 +37,14 @@ API Layer
 
 ---
 
-## 💳 Payment Integration
+##  Payment Integration
 
 - Integrated with Stripe for secure checkout
 - Handles payment intent creation and confirmation
 
 ---
 
-## 🧰 Tech Stack
+##  Tech Stack
 
 - ASP.NET Core
 - Entity Framework Core
@@ -55,7 +55,7 @@ API Layer
 
 ---
 
-## ⚙️ Getting Started
+##  Getting Started
 
 ### 1. Clone the repo
 
@@ -85,7 +85,7 @@ dotnet run
 
 ---
 
-## 📡 API Endpoints (Examples)
+##  API Endpoints (Examples)
 
 - GET /api/products
 - GET /api/products?pageNumber=1&pageSize=10&q=phone
@@ -103,6 +103,6 @@ dotnet run
 
 ---
 
-## 👤 Author
+##  Author
 
 Mohammed Fathi Abualgasim Mustafa
