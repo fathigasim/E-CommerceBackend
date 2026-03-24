@@ -143,5 +143,20 @@ namespace EcommerceInfrastructure.Repository
         {
             return await _dbSet.AnyAsync(e => EF.Property<Guid>(e, "Id") == id, cancellationToken);
         }
+
+        public async Task<bool> ItemExistAsync(
+
+
+         Expression<Func<T, bool>> filter,
+
+         CancellationToken cancellationToken = default)
+        {
+            //IQueryable<T> query = _dbSet.Where(filter).AsNoTracking();
+            var exist = await _dbSet.AsNoTracking().AnyAsync(filter, cancellationToken);
+            return exist;
+        }
+        //   Rule to Remember
+
+        //LINQ filters must always return bool
     }
 }

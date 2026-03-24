@@ -11,8 +11,8 @@ namespace EcommerceApplication.Common.Settings
         public bool IsSuccess { get; }
         public T? Data { get; }
         public string? ErrorMessage { get; }
-        public IReadOnlyList<string> Errors { get; } //= new();
-
+        
+        public IReadOnlyList<string> Errors { get; } = new List<string>();
         private Result(bool isSuccess, T? data, string? errorMessage, List<string>? errors = null)
         {
             IsSuccess = isSuccess;

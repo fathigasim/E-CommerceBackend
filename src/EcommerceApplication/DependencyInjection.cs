@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using MediaRTutorialApplication.Mappings;
-using MediaRTutorialApplication.PipelineBehaviors;
+using EcommerceApplication;
+using EcommerceApplication.PipelineBehaviors;
 
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace MediaRTutorialApplication
+namespace EcommerceApplication
 {
     public static class DependencyInjection
     {
@@ -37,7 +37,8 @@ namespace MediaRTutorialApplication
                 // Cache Invalidation
                 cfg.AddOpenBehavior(typeof(CacheInvalidationBehavior<,>));
             });
-
+            // Add Localization for Application Layer
+           // services.AddLocalization();
             // 3. Register AutoMapper
             //services.AddAutoMapper(typeof(MappingProfile));
 

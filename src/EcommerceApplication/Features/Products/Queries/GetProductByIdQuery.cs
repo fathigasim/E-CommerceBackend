@@ -1,5 +1,5 @@
 ﻿using EcommerceApplication.Common.Settings;
-using EcommerceApplication.DTOs;
+using EcommerceApplication.Features.Products.DTOs;
 using MediatR;
 
 namespace EcommerceApplication.Features.Products.Queries

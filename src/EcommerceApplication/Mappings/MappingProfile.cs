@@ -3,11 +3,11 @@ using EcommerceApplication.DTOs;
 using EcommerceApplication.Features.Orders.DTOs;
 using EcommerceApplication.Features.Payment.DTOs;
 using EcommerceDomain.Entities;
-using MediaRTutorialApplication.DTOs;
-using MediaRTutorialApplication.Features.Orders.DTOs;
-using MediaRTutorialDomain.Entities;
+using EcommerceApplication.Features.Products.DTOs;
+using EcommerceApplication.Features.Github.DTOs;
+using EcommerceApplication.Features.Github.Queries.GithubUser;
 
-namespace MediaRTutorialApplication.Mappings
+namespace EcommerceApplication.Mappings
 {
     public class MappingProfile: Profile
     {
@@ -31,7 +31,10 @@ namespace MediaRTutorialApplication.Mappings
                 .ForMember(d => d.ProductName, opt => opt.MapFrom(s => s.Product.Name));
 
             CreateMap<Payment, PaymentDto>();
-              
+            CreateMap<GithubUserDto, GithubUserVm>()
+         .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Login))
+         .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name))
+         .ForMember(dest => dest.RepoCount, opt => opt.MapFrom(src => src.Public_Repos));
         }
        
     }

@@ -1,10 +1,5 @@
 ﻿using EcommerceApplication.Features.Orders.DTOs;
-using MediaRTutorialApplication.Features.Orders.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace EcommerceApplication.Features.Payment.DTOs
 {

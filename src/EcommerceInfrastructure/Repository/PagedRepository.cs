@@ -45,5 +45,7 @@ namespace EcommerceInfrastructure.Repository
 
             return new PaginatedList<TResult>(items, totalCount, pageNumber, pageSize);
         }
+
+      
     }
 }

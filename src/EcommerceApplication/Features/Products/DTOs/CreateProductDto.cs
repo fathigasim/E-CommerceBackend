@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MediaRTutorialApplication.DTOs
+namespace EcommerceApplication.Features.Products.DTOs
 {
     public record CreateProductDto(
     string Name,

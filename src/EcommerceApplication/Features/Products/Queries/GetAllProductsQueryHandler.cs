@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using EcommerceApplication.Common.Settings;
-using EcommerceApplication.DTOs;
+using EcommerceApplication.Features.Products.DTOs;
 using EcommerceDomain.Interfaces;
 using MediatR;
 

@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Polly;
 using Stripe;
 using System.Text;
 
@@ -64,9 +65,9 @@ namespace EcommerceInfrastructure
 
             services.Configure<JwtSettings>(jwtSection);
 
-            services.AddAuthentication(options=> { options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            services.AddAuthentication(options => { options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                }
+            }
             )
                 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
@@ -99,6 +100,45 @@ namespace EcommerceInfrastructure
             services.AddScoped<IDbSeeder, DbSeeder>();
             services.AddScoped<IFileStorageService, LocalFileStorageService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddHttpClient();
+            services.AddScoped<IHttpClientService, HttpClientService>();
+            services.AddMemoryCache();
+            //services.AddScoped<IGitHubService, GitHubService>();
+            //services.AddHttpClient("GitHub", client =>
+            //{
+            //    client.DefaultRequestHeaders.Add("User-Agent", "EcommerceApp");
+            //    client.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
+            //});
+            //services.AddHttpClient<GitHubService>(client =>
+            //{
+            //    client.DefaultRequestHeaders.Add("User-Agent", "EcommerceApp");
+            //    client.BaseAddress = new Uri("https://api.github.com/");
+            //    client.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
+
+            //});
+            services.AddHttpClient<IGitHubService, GitHubService>(client =>
+            {
+               client.BaseAddress = new Uri("https://api.github.com/");
+               client.DefaultRequestHeaders.Add("User-Agent", "EcommerceApp");
+               client.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
+            }).AddTransientHttpErrorPolicy(policy =>
+               policy.WaitAndRetryAsync(3, retryAttempt =>
+               TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
+    
+
+            //services.AddHttpClient<IGitHubService, GitHubService>(client =>
+            //{
+            //    client.BaseAddress = new Uri("https://api.github.com/");
+            //    client.DefaultRequestHeaders.Add("User-Agent", "EcommerceApp");
+            //    client.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
+
+            //    var username = configuration["GitHub:Username"];
+            //    var password = configuration["GitHub:Password"];
+            //    var authToken = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}"));
+
+            //    client.DefaultRequestHeaders.Authorization =
+            //        new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authToken);
+            //});
             return services;
         }
     }

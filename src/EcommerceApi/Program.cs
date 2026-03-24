@@ -1,9 +1,13 @@
+using EcommerceApplication;
+using EcommerceApplication;
 using EcommerceApplication.Exceptions;
 using EcommerceInfrastructure;
 using EcommerceInfrastructure.Extensions;
-using MediaRTutorialApplication;
+using FluentValidation;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
+using System.Globalization;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +18,41 @@ builder.Services.AddApplication();
 //  2. Add Infrastructure layer
 builder.Services.AddInfrastructure(builder.Configuration);
 
+//using Application.Common.Validators;
+//using FluentValidation;
+
+//// Register FluentValidation with Arabic Language Manager
+//ValidatorOptions.Global.LanguageManager = new ArabicLanguageManager();
+
+//// Or set default culture
+//ValidatorOptions.Global.LanguageManager.Culture = new CultureInfo("ar");
+// Configure Localization
+builder.Services.AddLocalization(options =>
+{
+    options.ResourcesPath = ""; // Resources are in the same folder as classes
+});
+
+// Configure supported cultures
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[]
+    {
+        new CultureInfo("en"),
+        new CultureInfo("ar")
+    };
+
+    options.DefaultRequestCulture = new RequestCulture("en");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+
+    // Add culture providers (order matters)
+    options.RequestCultureProviders = new List<IRequestCultureProvider>
+    {
+        new QueryStringRequestCultureProvider(),      // ?culture=ar
+        new CookieRequestCultureProvider(),           // Cookie
+        new AcceptLanguageHeaderRequestCultureProvider() // Accept-Language header
+    };
+});
 //  3. Add Controllers ONCE with all configurations
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
@@ -27,10 +66,6 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
 
-//  REMOVE THESE - Already in AddApplication():
-// builder.Services.AddFluentValidationAutoValidation(...);
-// builder.Services.AddValidatorsFromAssemblyContaining<...>();
-// builder.Services.AddMediatR(...);
 
 builder.Services.AddMemoryCache();
 
@@ -96,9 +131,16 @@ builder.Services.AddSwaggerGen(opt =>
 });
 
 builder.Services.AddHttpContextAccessor();
-
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOrUser", policy =>
+        policy.RequireRole("Admin", "User"));
+});
 var app = builder.Build();
 
+
+// Use Request Localization Middleware (MUST be before other middleware)
+app.UseRequestLocalization();
 // Seed database
 await app.SeedDatabaseAsync();
 
@@ -126,13 +168,9 @@ app.UseStaticFiles(new StaticFileOptions
         Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "products")),
     RequestPath = "/StaticImages"
 });
-
+app.UseHttpsRedirection();
 app.UseAuthentication();
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("AdminOrUser", policy =>
-        policy.RequireRole("Admin", "User"));
-});
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

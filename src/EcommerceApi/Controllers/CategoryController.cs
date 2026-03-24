@@ -36,8 +36,8 @@ namespace MediaRTutorial.Controllers
         [HttpPost]
         public async Task<IActionResult> PostAsync(CreateCategoryCommand request)
         {
-           await _mediator.Send(request);
-            return Ok(new { Message = "Category created successfully" });
+          var result= await _mediator.Send(request);
+            return Ok(result);
         }
 
         // PUT api/<CategoryController>/5

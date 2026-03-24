@@ -1,6 +1,11 @@
-﻿using FluentValidation;
+﻿using EcommerceApplication.Common.Validators;
+using EcommerceApplication.Common.Validators.Resources;
+using EcommerceApplication.Features.Products.Resources;
+using FluentValidation;
+using FluentValidation.Resources;
 using MediaRTutorialApplication.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,23 +14,43 @@ using System.Threading.Tasks;
 
 namespace MediaRTutorialApplication.Features.Products.Commands
 {
-    public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
+    public class CreateProductCommandValidator : LocalizedValidator<CreateProductCommand>//AbstractValidator<CreateProductCommand>
     {
         private static readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
         private static readonly string[] AllowedContentTypes = { "image/jpeg", "image/png", "image/gif", "image/webp" };
         private const long MaxFileSize = 5 * 1024 * 1024; // 5MB
-        public CreateProductCommandValidator()
+                                                          // public CreateProductCommandValidator()
+                                                          //public CreateProductCommandValidator(
+                                                          // IStringLocalizer<ValidationMessages> localizer) : base(localizer)
+        public CreateProductCommandValidator(
+        IStringLocalizer<ValidationMessages> localizer
+            //,
+       // IStringLocalizer<ProductResource> productLocalizer
+            ) : base(localizer)
+
+        //  RuleFor(x => x.Name)
+        //.NotEmpty()
+        //.WithMessage(validationLocalizer["Required"])
+        //.WithName(productLocalizer["Name"])
+        //.MaximumLength(100)
+        //.WithMessage(validationLocalizer["MaxLength"])
+        //.WithName(productLocalizer["Name"]);
+
+        //RuleFor(x => x.Price)
+        //    .GreaterThan(0)
+        //    .WithMessage(validationLocalizer["GreaterThan"])
+        //    .WithName(productLocalizer["Price"]);
         {
             RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Product name is required.")
-                .MaximumLength(200).WithMessage("Product name must not exceed 200 characters.");
+                .NotEmpty().WithMessage(Required)//.WithMessage("Product name is required.")
+                .MaximumLength(100).WithMessage(MaxLength);//.WithMessage("Product name must not exceed 200 characters.");
 
             RuleFor(x => x.Description)
-                .NotEmpty().WithMessage("Description is required.")
-                .MaximumLength(2000).WithMessage("Description must not exceed 2000 characters.");
+                .NotEmpty().WithMessage(Required)//("Description is required.")
+                .MaximumLength(2000).WithMessage(MaxLength);//("Description must not exceed 2000 characters.");
 
             RuleFor(x => x.Price)
-                .GreaterThan(0).WithMessage("Price must be greater than zero.");
+                .GreaterThan(0).WithMessage(GreaterThan);//("Price must be greater than zero.");
 
             RuleFor(x => x.StockQuantity).NotEmpty().WithMessage("Stock quantity is required.")
                 .GreaterThanOrEqualTo(1).WithMessage("Stock quantity cannot be negative.");
@@ -100,7 +125,51 @@ namespace MediaRTutorialApplication.Features.Products.Commands
 }
 
 
+//using FluentValidation.Resources;
+//using System.Globalization;
 
+//namespace Application.Common.Validators;
+
+//public class ArabicLanguageManager : LanguageManager
+//{
+//    public ArabicLanguageManager()
+//    {
+//        // Add Arabic translations for built-in validators
+//        AddTranslation("ar", "NotEmptyValidator", "حقل '{PropertyName}' مطلوب.");
+//        AddTranslation("ar", "NotNullValidator", "حقل '{PropertyName}' مطلوب.");
+//        AddTranslation("ar", "EmailValidator", "'{PropertyName}' ليس بريد إلكتروني صالح.");
+//        AddTranslation("ar", "MaximumLengthValidator",
+//            "يجب ألا يتجاوز '{PropertyName}' {MaxLength} حرفًا. لقد أدخلت {TotalLength} حرفًا.");
+//        AddTranslation("ar", "MinimumLengthValidator",
+//            "يجب أن يكون '{PropertyName}' على الأقل {MinLength} حرفًا. لقد أدخلت {TotalLength} حرفًا.");
+//        AddTranslation("ar", "LengthValidator",
+//            "يجب أن يكون '{PropertyName}' بين {MinLength} و {MaxLength} حرفًا.");
+//        AddTranslation("ar", "GreaterThanValidator",
+//            "يجب أن يكون '{PropertyName}' أكبر من {ComparisonValue}.");
+//        AddTranslation("ar", "GreaterThanOrEqualValidator",
+//            "يجب أن يكون '{PropertyName}' أكبر من أو يساوي {ComparisonValue}.");
+//        AddTranslation("ar", "LessThanValidator",
+//            "يجب أن يكون '{PropertyName}' أقل من {ComparisonValue}.");
+//        AddTranslation("ar", "LessThanOrEqualValidator",
+//            "يجب أن يكون '{PropertyName}' أقل من أو يساوي {ComparisonValue}.");
+//        AddTranslation("ar", "RegularExpressionValidator",
+//            "'{PropertyName}' بتنسيق غير صحيح.");
+//        AddTranslation("ar", "EqualValidator",
+//            "يجب أن يكون '{PropertyName}' مساويًا لـ '{ComparisonValue}'.");
+//        AddTranslation("ar", "ExactLengthValidator",
+//            "يجب أن يكون '{PropertyName}' بطول {MaxLength} حرفًا. لقد أدخلت {TotalLength} حرفًا.");
+//        AddTranslation("ar", "InclusiveBetweenValidator",
+//            "يجب أن يكون '{PropertyName}' بين {From} و {To}.");
+//        AddTranslation("ar", "ExclusiveBetweenValidator",
+//            "يجب أن يكون '{PropertyName}' بين {From} و {To} (حصريًا).");
+//        AddTranslation("ar", "CreditCardValidator",
+//            "'{PropertyName}' ليس رقم بطاقة ائتمان صالح.");
+//        AddTranslation("ar", "NotEqualValidator",
+//            "يجب ألا يكون '{PropertyName}' مساويًا لـ '{ComparisonValue}'.");
+//        AddTranslation("ar", "PredicateValidator",
+//            "الشرط المحدد غير مستوفى لـ '{PropertyName}'.");
+//    }
+//}
 
 // Infrastructure/Services/AzureBlobStorageService.cs
 //public class AzureBlobStorageService : IFileStorageService

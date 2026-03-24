@@ -1,6 +1,6 @@
 ﻿
 
-namespace MediaRTutorialApplication.Features.Orders.DTOs
+namespace EcommerceApplication.Features.Orders.DTOs
 {
     public record OrderItemDto(
     Guid ProductId,

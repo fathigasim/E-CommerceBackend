@@ -1,6 +1,6 @@
 ﻿
 using EcommerceApplication.Common.Settings;
-using EcommerceApplication.DTOs;
+using EcommerceApplication.Features.Products.DTOs;
 using MediaRTutorialApplication.DTOs;
 using MediaRTutorialDomain.Entities;
 using MediatR;
@@ -24,7 +24,7 @@ namespace MediaRTutorialApplication.Features.Products.Commands
     ImageUploadData? Image,
     Guid CategoryId
        
-) : IRequest<Result<ProductDto>>;
+) : IRequest<Result<string>>;
 
     // A clean DTO to decouple from IFormFile (which is an API concern)
     public  record ImageUploadData(

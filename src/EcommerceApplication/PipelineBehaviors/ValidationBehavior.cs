@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MediatR;
 
-namespace MediaRTutorialApplication.PipelineBehaviors
+namespace EcommerceApplication.PipelineBehaviors
 {
     public class ValidationBehavior<TRequest, TResponse>
         : IPipelineBehavior<TRequest, TResponse>

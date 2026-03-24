@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using EcommerceApplication.Common.Settings;
-using EcommerceApplication.DTOs;
+using EcommerceApplication.Features.Products.DTOs;
+using EcommerceApplication.Features.Products.Resources;
 using EcommerceDomain.Entities;
 using EcommerceDomain.Interfaces;
 using MediaRTutorialApplication.Interfaces;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using System.Net.Mime;
 
 
@@ -62,21 +64,23 @@ namespace MediaRTutorialApplication.Features.Products.Commands
     //        return product.Id;
     //    }
     public class CreateProductCommandHandler
-     : IRequestHandler<CreateProductCommand, Result<ProductDto>>
+     : IRequestHandler<CreateProductCommand, Result<string>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         private readonly IFileStorageService _fileStorageService;
-
-        public CreateProductCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, IFileStorageService fileStorageService)
+        private readonly IStringLocalizer<ProductResource> _localizer;
+        public CreateProductCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, 
+            IFileStorageService fileStorageService, IStringLocalizer<ProductResource> localizer)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _fileStorageService = fileStorageService;
+            _localizer = localizer;
         }
 
-        public async Task<Result<ProductDto>> Handle(
+        public async Task<Result<string>> Handle(
             CreateProductCommand request, CancellationToken cancellationToken)
         {
             // Verify category exists
@@ -84,7 +88,7 @@ namespace MediaRTutorialApplication.Features.Products.Commands
                 .ExistsAsync(request.CategoryId, cancellationToken);
 
             if (!categoryExists)
-                return Result<ProductDto>.Failure("Category not found.");
+                return Result<string>.Failure("Category not found.");
             // Handle image upload
             string? imageUrl = null;
             string? imageFileName = null;
@@ -115,8 +119,8 @@ namespace MediaRTutorialApplication.Features.Products.Commands
             // Reload with category
             var created = await _unitOfWork.Products
                 .GetProductWithCategoryAsync(product.Id, cancellationToken);
-
-            return Result<ProductDto>.Success(_mapper.Map<ProductDto>(created!));
+           // _mapper.Map<ProductDto>(created!),
+            return Result<string>.Success(_localizer["ProductCreated"]);
         }
     }
 
