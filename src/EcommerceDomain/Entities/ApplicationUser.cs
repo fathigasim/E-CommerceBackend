@@ -14,7 +14,7 @@ namespace EcommerceDomain.Entities
         public DateTime DateCreated { get; set; }
         public DateTime? LastLogin { get; set; }
         public bool IsActive { get; set; } = true;
-        public string RefreshToken { get; set; }
+        public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiry { get; set; }
     }
 }

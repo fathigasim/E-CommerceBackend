@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Polly;
+using Polly.Extensions.Http;
 using Stripe;
 using System.Text;
 
@@ -59,12 +60,15 @@ namespace EcommerceInfrastructure
             // JWT options (OPTIONS PATTERN)
             services.Configure<JwtSettings>(
                 configuration.GetSection("JwtSettings"));
-
+            services.Configure<SmtpSettings>(
+              configuration.GetSection("SmtpSettings"));
             // Authentication
             var jwtSection = configuration.GetSection("JwtSettings");
-
+            var smtpSection = configuration.GetSection("SmtpSettings");
             services.Configure<JwtSettings>(jwtSection);
+          
 
+            services.Configure<SmtpSettings>(smtpSection);
             services.AddAuthentication(options => { options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }
@@ -102,6 +106,7 @@ namespace EcommerceInfrastructure
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddHttpClient();
             services.AddScoped<IHttpClientService, HttpClientService>();
+            services.AddTransient<IEmailSender,EmailSender>();
             services.AddMemoryCache();
             //services.AddScoped<IGitHubService, GitHubService>();
             //services.AddHttpClient("GitHub", client =>
@@ -118,13 +123,50 @@ namespace EcommerceInfrastructure
             //});
             services.AddHttpClient<IGitHubService, GitHubService>(client =>
             {
-               client.BaseAddress = new Uri("https://api.github.com/");
-               client.DefaultRequestHeaders.Add("User-Agent", "EcommerceApp");
-               client.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
-            }).AddTransientHttpErrorPolicy(policy =>
-               policy.WaitAndRetryAsync(3, retryAttempt =>
-               TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
-    
+                client.BaseAddress = new Uri("https://api.github.com/");
+                client.DefaultRequestHeaders.Add("User-Agent", "EcommerceApp");
+                client.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
+            }).AddPolicyHandler(GetRetryPolicy())
+            .AddPolicyHandler(GetCircuitBreakerPolicy());
+            //.AddTransientHttpErrorPolicy(policy =>
+            //   policy.WaitAndRetryAsync(3, retryAttempt =>
+            //   TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
+           
+
+
+            static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+            {
+                return HttpPolicyExtensions
+                    .HandleTransientHttpError()
+                   //.OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    .WaitAndRetryAsync(
+                        3,
+                        retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                        onRetry: (outcome, timespan, retryCount, context) =>
+                        {
+                            Console.WriteLine($"Retry {retryCount} after {timespan.TotalSeconds}s");
+                        }
+                    );
+            }
+
+            static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
+            {
+                return HttpPolicyExtensions
+                    .HandleTransientHttpError().CircuitBreakerAsync(5, TimeSpan.FromSeconds(30));
+                    //.CircuitBreakerAsync(
+                    //    handledEventsAllowedBeforeBreaking: 5,
+                    //    durationOfBreak: TimeSpan.FromSeconds(30),
+                    //    onBreak: (outcome, timespan) =>
+                    //    {
+                    //        Console.WriteLine($"Circuit breaker opened for {timespan.TotalSeconds}s");
+                    //    },
+                    //    onReset: () =>
+                    //    {
+                    //        Console.WriteLine("Circuit breaker reset");
+                    //    }
+                    //);
+            };
+
 
             //services.AddHttpClient<IGitHubService, GitHubService>(client =>
             //{
