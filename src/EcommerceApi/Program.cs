@@ -153,7 +153,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("DevCors");
+
 
 // Static Files
 app.UseDefaultFiles();
@@ -169,6 +169,8 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/StaticImages"
 });
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors("DevCors");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
