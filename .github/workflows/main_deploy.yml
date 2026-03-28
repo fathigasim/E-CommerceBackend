@@ -1,0 +1,41 @@
+name: E-CommerceBackend CI CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore
+      run: dotnet restore EcommerceBackend.sln
+
+    - name: Build
+      run: dotnet build EcommerceBackend.sln --configuration Release --no-restore
+
+    - name: Test
+      run: echo "Add tests later"
+
+    - name: Publish
+      run: dotnet publish src/EcommerceApi/EcommerceApi.csproj -c Release -o ./publish
+
+    - name: Verify publish output
+      run: ls -la ./publish
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ecommerce-api
+        path: ./publish
