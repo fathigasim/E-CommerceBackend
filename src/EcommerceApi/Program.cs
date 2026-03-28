@@ -143,7 +143,13 @@ var app = builder.Build();
 app.UseRequestLocalization();
 // Seed database
 await app.SeedDatabaseAsync();
-
+// HTTPS Redirection FIRST (or remove it for local dev)
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+app.UseRouting();
+app.UseCors("DevCors");
 //  Exception middleware FIRST (before other middleware)
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
@@ -169,11 +175,10 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/StaticImages"
 });
 
-app.UseRouting();
-app.UseCors("DevCors");
+
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHttpsRedirection();
+
 app.MapControllers();
 
 app.Run();
