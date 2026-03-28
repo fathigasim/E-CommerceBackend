@@ -168,11 +168,12 @@ app.UseStaticFiles(new StaticFileOptions
         Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "products")),
     RequestPath = "/StaticImages"
 });
-app.UseHttpsRedirection();
+
 app.UseRouting();
 app.UseCors("DevCors");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
