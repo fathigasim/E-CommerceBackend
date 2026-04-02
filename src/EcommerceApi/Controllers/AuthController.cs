@@ -42,7 +42,7 @@ namespace MediaRTutorial.Controllers
 
             if (!result.Succeeded)
             {
-                return Unauthorized(result);
+                return BadRequest(result);
             }
 
             return Ok(result);

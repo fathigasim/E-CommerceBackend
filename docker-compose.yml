@@ -27,7 +27,7 @@ services:
       - SmtpSettings__DisplayName=${Smtp_DisplayName}
       - SmtpSettings__UserName=${Smtp_Username}
       - SmtpSettings__Password=${Smtp_Password}
-      - Stripe__StripeKey=${Stripe_StripeKey}
+      - Stripe__SecretKey=${Stripe_StripeKey}
       - Stripe__WebhookSecret=${Stripe_WebhookSecret}
       - Stripe__PublishableKey=${Stripe_PublishableKey}
  
@@ -70,6 +70,7 @@ services:
       - mynetwork
     depends_on:
       - api
+
 
 volumes:
   sqlserver-data:

@@ -24,7 +24,8 @@ namespace EcommerceApplication.Features.Auth.Commands.Register
                 .Matches(@"[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character");
 
             RuleFor(x => x.ConfirmPassword)
-                .Equal(x => x.Password).WithMessage("Passwords do not match");
+                .NotEmpty().WithMessage("Confirm password is required")
+                .NotEqual(x => x.Password).WithMessage("Passwords do not match");
 
             RuleFor(x => x.FirstName)
                 .NotEmpty().WithMessage("First name is required")
