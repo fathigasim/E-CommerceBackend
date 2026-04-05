@@ -17,7 +17,7 @@ namespace MediaRTutorial.Controllers
             _mediator = mediator;
         }
         [HttpGet("PagedProducts")]
-        public async Task<IActionResult> GetAllProductsPaginatedAsync(string? q,Guid?categoryId, int pageNumber, int pageSize)
+        public async Task<IActionResult> GetAllProductsPaginatedAsync(string? q,Guid?categoryId, int pageNumber=1, int pageSize=8)
  {
 
             return Ok(await _mediator.Send(new GetPaginatedProductsQuery(q,categoryId,pageNumber, pageSize)));

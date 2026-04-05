@@ -1,6 +1,6 @@
 ﻿using EcommerceApplication.Common.Localization;
 using EcommerceApplication.Common.Localization.Resources;
-using FluentValidation;  // ✅ Make sure this is here!
+
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -36,11 +36,11 @@ namespace EcommerceApplication.Exceptions
 
             catch (Exception ex)
             {
-                await HandleExceptionAsync(context, ex, _localizer);
+                await HandleExceptionAsync(context, ex);
             }
         }
 
-        private async Task HandleExceptionAsync(HttpContext context, Exception exception, IStringLocalizer<SharedResource>_localizer)
+        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             _logger.LogError(exception, "An error occurred: {Message}", exception.Message);
 
@@ -153,103 +153,5 @@ namespace EcommerceApplication.Exceptions
             await context.Response.WriteAsync(json);
         }
     }
-    //public class ExceptionHandlingMiddleware
-    //{
-    //    private readonly RequestDelegate _next;
-    //    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-
-    //    public ExceptionHandlingMiddleware(
-    //        RequestDelegate next,
-    //        ILogger<ExceptionHandlingMiddleware> logger)
-    //    {
-    //        _next = next;
-    //        _logger = logger;
-    //    }
-
-    //    public async Task InvokeAsync(
-    //        HttpContext context,
-    //        IStringLocalizer<SharedResource> localizer)
-    //    {
-    //        try
-    //        {
-    //            await _next(context);
-    //        }
-    //        catch (ValidationException ex)
-    //        {
-    //            await HandleValidationExceptionAsync(context, ex);
-    //        }
-    //        catch (NotFoundException ex)
-    //        {
-    //            await HandleNotFoundExceptionAsync(context, ex, localizer);
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            _logger.LogError(ex, "An unexpected error occurred");
-    //            await HandleExceptionAsync(context, ex, localizer);
-    //        }
-    //    }
-
-    //    private static async Task HandleValidationExceptionAsync(
-    //        HttpContext context,
-    //        ValidationException exception)
-    //    {
-    //        context.Response.ContentType = "application/json";
-    //        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-
-    //        var errors = exception.Errors
-    //            .GroupBy(e => e.PropertyName)
-    //            .ToDictionary(
-    //                g => g.Key,
-    //                g => g.Select(e => e.ErrorMessage).ToArray()
-    //            );
-
-    //        var response = new ValidationProblemDetails
-    //        {
-    //            Status = StatusCodes.Status400BadRequest,
-    //            Title = "Validation Error",
-    //            //    Errors = errors
-    //        };
-
-    //        var options = new JsonSerializerOptions
-    //        {
-    //            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    //        };
-
-    //        await context.Response.WriteAsync(JsonSerializer.Serialize(response, options));
-    //    }
-
-    //    private static async Task HandleNotFoundExceptionAsync(
-    //        HttpContext context,
-    //        NotFoundException exception,
-    //        IStringLocalizer<SharedResource> localizer)
-    //    {
-    //        context.Response.ContentType = "application/json";
-    //        context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-
-    //        var response = new ProblemDetails
-    //        {
-    //            Status = StatusCodes.Status404NotFound,
-    //            Title = localizer["NotFound", exception],
-    //        };
-
-    //        await context.Response.WriteAsync(JsonSerializer.Serialize(response));
-    //    }
-
-    //    private static async Task HandleExceptionAsync(
-    //        HttpContext context,
-    //        Exception exception,
-    //        IStringLocalizer<SharedResource> localizer)
-    //    {
-    //        context.Response.ContentType = "application/json";
-    //        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-    //        var response = new ProblemDetails
-    //        {
-    //            Status = StatusCodes.Status500InternalServerError,
-    //            Title = localizer["UnexpectedError"],
-    //        };
-
-    //        await context.Response.WriteAsync(JsonSerializer.Serialize(response));
-    //    }
-    //}
+    
 }

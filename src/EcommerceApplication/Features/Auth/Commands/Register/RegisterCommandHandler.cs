@@ -1,4 +1,5 @@
 ﻿
+using EcommerceApplication.Features.Auth.Notifications.RegisterNotification;
 using EcommerceDomain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -9,10 +10,11 @@ namespace EcommerceApplication.Features.Auth.Commands.Register
     public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterResponse>
     {
         private readonly UserManager<ApplicationUser> _userManager;
-
-        public RegisterCommandHandler(UserManager<ApplicationUser> userManager)
+        private readonly IMediator _mediator;
+        public RegisterCommandHandler(UserManager<ApplicationUser> userManager, IMediator mediator)
         {
             _userManager = userManager;
+            _mediator = mediator;
         }
 
         public async Task<RegisterResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -41,6 +43,7 @@ namespace EcommerceApplication.Features.Auth.Commands.Register
 
             if (result.Succeeded)
             {
+                await _mediator.Publish(new UserRegisteredNotification(request.Email, request.UserName));
                 // Optionally add default role
                 await _userManager.AddToRoleAsync(user, "User");
 

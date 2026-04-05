@@ -1,4 +1,7 @@
-﻿using EcommerceDomain.Entities;
+﻿.
+
+
+using EcommerceDomain.Entities;
 using MediaRTutorialDomain.Entities;
 using System;
 using System.Collections.Generic;

@@ -44,6 +44,16 @@ namespace MediaRTutorialApplication.Features.Payment.Commands.RefundPayment
             payment.Status = PaymentStatus.Refunded;
             payment.UpdatedAt = DateTime.UtcNow;
             await _unitOfWork.Payments.UpdateAsync(payment, cancellationToken);
+          var orderToUpdate=  await _unitOfWork.Orders.GetByIdAsync(payment.OrderId.Value, cancellationToken);
+             orderToUpdate.Status= payment.Status switch
+             {
+                 PaymentStatus.Succeeded => OrderStatus.Processing,
+                 PaymentStatus.Failed => OrderStatus.Cancelled,
+                 PaymentStatus.Cancelled => OrderStatus.Cancelled,
+                 PaymentStatus.Refunded => OrderStatus.Cancelled,
+                 _ => orderToUpdate.Status
+             };
+             _unitOfWork.Orders.Update(orderToUpdate);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return Result<RefundPaymentResponse>.Success(
                 new RefundPaymentResponse(

@@ -1,4 +1,5 @@
 ﻿using EcommerceApplication.Common.Settings;
+using EcommerceApplication.Features.Products.Notifications;
 using EcommerceDomain.Interfaces;
 using MediaRTutorialApplication.Interfaces;
 using MediatR;
@@ -39,10 +40,12 @@ namespace MediaRTutorialApplication.Features.Products.Commands
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFileStorageService _fileStorageService;
-        public UpdateProductCommandHandler(IUnitOfWork unitOfWork, IFileStorageService fileStorageService)
+        private readonly IMediator _mediator;
+        public UpdateProductCommandHandler(IUnitOfWork unitOfWork, IFileStorageService fileStorageService, IMediator mediator)
         {
             _unitOfWork = unitOfWork;
             _fileStorageService = fileStorageService;
+            _mediator = mediator;
         }
 
         public async Task<Result<Unit>> Handle(
@@ -80,7 +83,7 @@ namespace MediaRTutorialApplication.Features.Products.Commands
 
             _unitOfWork.Products.Update(product);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-
+            await _mediator.Publish(new ProductUpdatedNotification(product.Id), ct);
             return Result<Unit>.Success(Unit.Value);
         }
     }

@@ -36,7 +36,7 @@ namespace EcommerceApplication.Features.Payment.Queries.PaymentList
       pageSize: request.PageSize,
       
       orderBy: q => q.OrderByDescending(p => p.CreatedAt), // optional
-      filter: p => p.Status == PaymentStatus.Succeeded,     // optional
+    //  filter: p => p.Status == PaymentStatus.Succeeded,     // optional
       cancellationToken: cancellationToken
   );
 

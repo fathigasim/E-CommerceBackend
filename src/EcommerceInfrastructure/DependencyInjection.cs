@@ -27,7 +27,7 @@ namespace EcommerceInfrastructure
             this IServiceCollection services,
             IConfiguration configuration)
         {
-
+            services.AddMemoryCache();
             // Stripe configuration
             var stripeSettings = configuration
                 .GetSection(StripeSettings.SectionName)

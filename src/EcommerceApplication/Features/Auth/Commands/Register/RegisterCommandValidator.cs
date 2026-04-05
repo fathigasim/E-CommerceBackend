@@ -25,7 +25,7 @@ namespace EcommerceApplication.Features.Auth.Commands.Register
 
             RuleFor(x => x.ConfirmPassword)
                 .NotEmpty().WithMessage("Confirm password is required")
-                .NotEqual(x => x.Password).WithMessage("Passwords do not match");
+                .Equal(x => x.Password).WithMessage("Passwords do not match");
 
             RuleFor(x => x.FirstName)
                 .NotEmpty().WithMessage("First name is required")

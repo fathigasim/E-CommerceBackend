@@ -30,7 +30,8 @@ namespace EcommerceApplication.Mappings
             CreateMap<OrderItem, OrderItemDto>()
                 .ForMember(d => d.ProductName, opt => opt.MapFrom(s => s.Product.Name));
 
-            CreateMap<Payment, PaymentDto>();
+            CreateMap<Payment, PaymentDto>()
+                .ForMember(d=>d.Status,opt=>opt.MapFrom(s => s.Status.ToString()));
             CreateMap<GithubUserDto, GithubUserVm>()
          .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Login))
          .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name))

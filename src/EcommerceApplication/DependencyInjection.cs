@@ -25,22 +25,20 @@ namespace EcommerceApplication
             {
                 cfg.RegisterServicesFromAssembly(assembly);
 
-                //  ValidationBehavior - runs validation before handler
-                cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+             
 
                 // Logging
                 cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
 
                 // Caching
                 cfg.AddOpenBehavior(typeof(CachingBehavior<,>));
+                //  ValidationBehavior - runs validation before handler
+                cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 
                 // Cache Invalidation
                 cfg.AddOpenBehavior(typeof(CacheInvalidationBehavior<,>));
             });
-            // Add Localization for Application Layer
-           // services.AddLocalization();
-            // 3. Register AutoMapper
-            //services.AddAutoMapper(typeof(MappingProfile));
+         
 
             return services;
         }
