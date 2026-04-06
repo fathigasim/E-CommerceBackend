@@ -83,7 +83,7 @@ namespace MediaRTutorialApplication.Features.Products.Commands
 
             _unitOfWork.Products.Update(product);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            await _mediator.Publish(new ProductUpdatedNotification(product.Id), ct);
+            await _mediator.Publish(new ProductUpdatedNotification(product.Id));
             return Result<Unit>.Success(Unit.Value);
         }
     }

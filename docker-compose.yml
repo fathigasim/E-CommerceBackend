@@ -1,4 +1,3 @@
-version: '3.9'
 
 services:
   api:
@@ -30,9 +29,12 @@ services:
       - Stripe__SecretKey=${Stripe_StripeKey}
       - Stripe__WebhookSecret=${Stripe_WebhookSecret}
       - Stripe__PublishableKey=${Stripe_PublishableKey}
- 
+      - ConnectionStrings__Redis=${Redis_ConnectionString}
+
     depends_on:
       sqlserver:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   sqlserver:
@@ -53,6 +55,20 @@ services:
       timeout: 10s
       retries: 15
       start_period: 60s
+  
+  redis:
+    image: redis:7.2-alpine
+    container_name: ecommerce-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - mynetwork
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
 
   frontend:
     build:

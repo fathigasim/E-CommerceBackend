@@ -31,7 +31,8 @@ namespace EcommerceApplication
                 cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
 
                 // Caching
-                cfg.AddOpenBehavior(typeof(CachingBehavior<,>));
+                //cfg.AddOpenBehavior(typeof(CachingBehavior<,>));
+                cfg.AddOpenBehavior(typeof(RedisCachingBehavior<,>));
                 //  ValidationBehavior - runs validation before handler
                 cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 

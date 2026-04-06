@@ -58,13 +58,13 @@ namespace MediaRTutorial.Controllers
            );
             var result = await _mediator.Send(command,cancellationToken);
 
-            //if (!result.IsSuccess)
-            //    return BadRequest(new
-            //    {
-            //        statusCode = 400,
-            //        message = "Validation failed",
-            //        errors = result.Errors  // Your errors list
-            //    });
+            if (!result.IsSuccess)
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    message = "Validation failed",
+                    errors = result.Errors  // Your errors list
+                });
             return Ok(result);
          
         }

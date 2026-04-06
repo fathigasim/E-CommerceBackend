@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Polly;
 using Polly.Extensions.Http;
+using StackExchange.Redis;
 using Stripe;
 using System.Text;
 
@@ -28,6 +29,20 @@ namespace EcommerceInfrastructure
             IConfiguration configuration)
         {
             services.AddMemoryCache();
+            // Redis configuration
+            // 1. Define your connection string
+            var redisConnectionString = configuration["Redis:ConnectionString"] ?? "localhost:6379";
+            // 2.Register the ConnectionMultiplexer as a Singleton
+           // This fixes the "Unable to resolve service" error
+            services.AddSingleton<IConnectionMultiplexer>(sp =>
+             ConnectionMultiplexer.Connect(redisConnectionString));
+            // 3. Register the standard IDistributedCache 
+            // (Optional: It can use the existing multiplexer to save resources)
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConnectionString;
+                options.InstanceName = "Ecommerce_"; // Prefixes all keys
+            });
             // Stripe configuration
             var stripeSettings = configuration
                 .GetSection(StripeSettings.SectionName)

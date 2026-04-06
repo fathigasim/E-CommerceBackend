@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +9,18 @@ namespace EcommerceApplication.Common.Settings
 {
     public class Result<T>
     {
+      
         public bool IsSuccess { get; }
         public T? Data { get; }
         public string? ErrorMessage { get; }
-        
+
+        // Parameterless constructor for deserialization
+        [JsonConstructor]
+        public Result()
+        {
+
+        }
+
         public IReadOnlyList<string> Errors { get; } = new List<string>();
         private Result(bool isSuccess, T? data, string? errorMessage, List<string>? errors = null)
         {

@@ -1,5 +1,4 @@
-﻿.
-
+﻿
 
 using EcommerceDomain.Entities;
 using MediaRTutorialDomain.Entities;
