@@ -1,7 +1,6 @@
 ﻿
 using EcommerceApplication.Common.Settings;
 using EcommerceApplication.Features.Products.DTOs;
-using MediaRTutorialApplication.DTOs;
 using MediaRTutorialDomain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Http;

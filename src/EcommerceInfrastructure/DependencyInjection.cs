@@ -2,6 +2,7 @@
 using EcommerceApplication.Interfaces;
 using EcommerceDomain.Entities;
 using EcommerceDomain.Interfaces;
+using EcommerceInfrastructure.Identity;
 using EcommerceInfrastructure.Payments;
 using EcommerceInfrastructure.Persistance;
 using EcommerceInfrastructure.Repository;
@@ -19,6 +20,8 @@ using Polly.Extensions.Http;
 using StackExchange.Redis;
 using Stripe;
 using System.Text;
+using ApplicationUser = EcommerceInfrastructure.Identity.ApplicationUser;
+using IdentityService = EcommerceInfrastructure.Identity.IdentityService;
 
 namespace EcommerceInfrastructure
 {
@@ -28,6 +31,12 @@ namespace EcommerceInfrastructure
             this IServiceCollection services,
             IConfiguration configuration)
         {
+            var assembly = typeof(DependencyInjection).Assembly;
+            // ✅ Register AutoMapper FIRST with explicit assembly
+            services.AddAutoMapper(cfg =>
+            {
+                cfg.AddMaps(assembly);
+            }, assembly);
             services.AddMemoryCache();
             // Redis configuration
             // 1. Define your connection string
@@ -119,6 +128,7 @@ namespace EcommerceInfrastructure
             services.AddScoped<IDbSeeder, DbSeeder>();
             services.AddScoped<IFileStorageService, LocalFileStorageService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<IIdentityService,IdentityService>();
             services.AddHttpClient();
             services.AddScoped<IHttpClientService, HttpClientService>();
             services.AddTransient<IEmailSender,EmailSender>();

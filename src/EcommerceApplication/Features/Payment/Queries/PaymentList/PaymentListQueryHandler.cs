@@ -1,19 +1,10 @@
 ﻿using AutoMapper;
-using EcommerceApplication.Common;
+using EcommerceApplication.Common.EcommerceApplication.Common;
 using EcommerceApplication.Common.Settings;
 using EcommerceApplication.Features.Payment.DTOs;
-using EcommerceDomain.Enums;
 using EcommerceDomain.Interfaces;
-using MediaRTutorialApplication.DTOs;
-using MediaRTutorialApplication.Features.Payment.Queries.GetPaymentById;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace EcommerceApplication.Features.Payment.Queries.PaymentList
 {

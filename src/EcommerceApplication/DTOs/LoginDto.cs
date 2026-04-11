@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MediaRTutorialApplication.DTOs
+namespace EcommerceApplication.DTOs
 {
     public record LoginDto (string Email, string Password);
   

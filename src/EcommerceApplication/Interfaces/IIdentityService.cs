@@ -1,14 +1,25 @@
 ﻿using EcommerceApplication.Common.Settings;
 using EcommerceApplication.DTOs;
-using MediaRTutorialApplication.DTOs;
+using EcommerceApplication.Features.Auth.Commands.Login;
+using EcommerceApplication.Features.Auth.Dtos;
+using EcommerceDomain.Entities;
+using MediatR;
 
 
-namespace MediaRTutorialApplication.Interfaces
+namespace EcommerceApplication.Interfaces
 {
 
     public interface IIdentityService
     {
-        Task<Result<AuthResponseDto>> RegisterAsync(RegisterDto dto);
-        Task<Result<AuthResponseDto>> LoginAsync(LoginDto dto);
+        Task<UserDto> FindByIdAsync(string userId);
+        Task<string> GeneratePasswordResetTokenAsync(UserDto user);
+        Task<Result<string>> ResetPasswordAsync(UserDto user, string token, string newPassword);
+        Task<UserDto> FindByEmailAsync(string email);
+        Task UpdateAsync(UserDto userDto);
+        Task SignOutAsync();
+        Task<Result<string>> DeleteAsync(string userId);
+        Task<Result<string>> RegisterAsync(RegisterDto dto);
+        Task<Result<LoginResponse>> LoginAsync(LoginDto dto);
+        
     }
 }

@@ -26,7 +26,7 @@ namespace MediaRTutorial.Controllers
         {
             var result = await _mediator.Send(command);
 
-            if (!result.Succeeded)
+            if (!result.IsSuccess)
             {
                 return BadRequest(result);
             }
@@ -40,9 +40,9 @@ namespace MediaRTutorial.Controllers
         {
             var result = await _mediator.Send(command);
 
-            if (!result.Succeeded)
+            if (!result.IsSuccess)
             {
-                return BadRequest(result);
+                return BadRequest(result.ErrorMessage);
             }
 
             return Ok(result);

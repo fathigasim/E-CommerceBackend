@@ -1,7 +1,10 @@
-﻿using EcommerceApplication.Common.Settings;
+﻿using AutoMapper;
+using EcommerceApplication.Common.Settings;
+using EcommerceApplication.Features.Auth.Dtos;
 using EcommerceApplication.Interfaces;
 using EcommerceDomain.Entities;
-
+using EcommerceInfrastructure.Identity;
+using MediaRTutorialApplication.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -19,29 +22,35 @@ namespace EcommerceInfrastructure.Services
     public class AuthenticationService : IAuthenticationService
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IIdentityService _identityService;
         private readonly JwtSettings _jwtSettings;
-
+        private readonly IMapper _mapper;
         public AuthenticationService(
             UserManager<ApplicationUser> userManager,
-            IOptions<JwtSettings> jwtSettings)
+            IOptions<JwtSettings> jwtSettings,
+             IMapper mapper
+            )
         {
             _userManager = userManager;
             _jwtSettings = jwtSettings.Value;
+            _mapper = mapper;
         }
 
-        public async Task<string> GenerateJwtToken(ApplicationUser user)
+        public async Task<string> GenerateJwtToken(UserDto user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
 
-            var roles = await _userManager.GetRolesAsync(user);
+            var identityUser = await _userManager.FindByEmailAsync(user.Email);
+
+            var roles = await _userManager.GetRolesAsync(identityUser);
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim("FirstName", user.FirstName ?? ""),
-                new Claim("LastName", user.LastName ?? ""),
+                new Claim(ClaimTypes.NameIdentifier, identityUser.Id),
+                new Claim(ClaimTypes.Email, identityUser?.Email),
+                new Claim(ClaimTypes.Name, identityUser?.UserName),
+                new Claim("FirstName", identityUser.FirstName ?? ""),
+                new Claim("LastName", identityUser.LastName ?? ""),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
@@ -73,19 +82,20 @@ namespace EcommerceInfrastructure.Services
             return Convert.ToBase64String(randomNumber);
         }
 
-        public async Task<(string AccessToken, string RefreshToken)> GenerateTokens(ApplicationUser user)
+        public async Task<(string AccessToken, string RefreshToken)> GenerateTokens(UserDto user)
         {
             var accessToken = await GenerateJwtToken(user);
             var refreshToken = GenerateRefreshToken();
 
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationInDays);
-            await _userManager.UpdateAsync(user);
+            var identityUser = await _userManager.FindByEmailAsync(user.Email);
+            identityUser.RefreshToken = refreshToken;
+            identityUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationInDays);
+            await _userManager.UpdateAsync(identityUser);
 
             return (accessToken, refreshToken);
         }
 
-        public async Task<ApplicationUser> ValidateRefreshToken(string userId, string refreshToken)
+        public async Task<UserDto> ValidateRefreshToken(string userId, string refreshToken)
         {
             var user = await _userManager.FindByIdAsync(userId);
 
@@ -96,7 +106,7 @@ namespace EcommerceInfrastructure.Services
                 return null;
             }
 
-            return user;
+            return _mapper.Map<UserDto>(user);
         }
     }
 }

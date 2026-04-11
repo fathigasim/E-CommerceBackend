@@ -1,5 +1,6 @@
 ﻿using EcommerceDomain.Common;
 using EcommerceDomain.Entities;
+using EcommerceInfrastructure.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

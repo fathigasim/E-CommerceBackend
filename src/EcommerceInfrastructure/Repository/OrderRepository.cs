@@ -11,6 +11,8 @@ namespace EcommerceInfrastructure.Repository
     {
         public OrderRepository(AppDbContext context,IMapper mapper) : base(context,mapper) { }
 
+
+
         public async Task<IReadOnlyList<Order>> GetOrdersAsync(CancellationToken cancellationToken = default)
         {
                return await _dbSet.Include(p=>p.Items).ThenInclude(p=>p.Product).AsNoTracking().ToListAsync(cancellationToken);

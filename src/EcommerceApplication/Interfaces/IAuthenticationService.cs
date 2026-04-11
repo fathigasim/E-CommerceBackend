@@ -1,4 +1,5 @@
-﻿using EcommerceDomain.Entities;
+﻿using EcommerceApplication.Features.Auth.Dtos;
+using EcommerceDomain.Entities;
 using MediaRTutorialDomain.Entities;
 using System;
 using System.Collections.Generic;
@@ -10,9 +11,9 @@ namespace EcommerceApplication.Interfaces
 {
     public interface IAuthenticationService
     {
-        Task<string> GenerateJwtToken(ApplicationUser user);
+        Task<string> GenerateJwtToken(UserDto user);
         string GenerateRefreshToken();
-        Task<(string AccessToken, string RefreshToken)> GenerateTokens(ApplicationUser user);
-        Task<ApplicationUser> ValidateRefreshToken(string userId, string refreshToken);
+        Task<(string AccessToken, string RefreshToken)> GenerateTokens(UserDto user);
+        Task<UserDto> ValidateRefreshToken(string userId, string refreshToken);
     }
 }

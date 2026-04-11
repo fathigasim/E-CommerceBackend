@@ -14,5 +14,12 @@ namespace EcommerceApplication.Features.Auth.Dtos
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public List<string> Roles { get; set; }
+
+     
+        public DateTime DateCreated { get; set; }
+        public DateTime? LastLogin { get; set; }
+        public bool IsActive { get; set; } = true;
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiry { get; set; }
     }
 }

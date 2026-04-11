@@ -1,6 +1,8 @@
 ﻿
 using EcommerceApplication.Features.Orders.Commands;
 using EcommerceApplication.Features.Orders.Queries;
+using EcommerceApplication.Features.Orders.Queries.AllOrders;
+using EcommerceApplication.Features.Orders.Queries.PagedOrders;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 
@@ -21,11 +23,16 @@ namespace MediaRTutorial.Controllers
             _logger = logger;
             _mediator = mediator;
         }
-        [HttpGet("GetOrders")]
-        public async Task <IActionResult> GetOrders(string? q,int pageNumber,int pageSize)
+        [HttpGet("GetAllOrders")]
+        public async Task<IActionResult> GetAllOrders()
+        { 
+        return Ok(await _mediator.Send(new GetAllOrdersQuery()));
+        }
+            [HttpGet("GetOrders")]
+        public async Task <IActionResult> GetOrders(string? q,int pageNumber=1,int pageSize=6)
         {
             // Placeholder for getting orders
-          var result=await  _mediator.Send(new GetAllOrdersQuery(q,pageNumber,pageSize));
+          var result=await  _mediator.Send(new GetPagedOrdersQuery(q,pageNumber,pageSize));
             return Ok(result);
         }
 

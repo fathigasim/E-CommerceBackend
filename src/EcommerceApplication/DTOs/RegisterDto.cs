@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace EcommerceApplication.DTOs
 {
-    public record RegisterDto(string FirstName,string LastName,string UserName,string Email,string Password,bool EmailConfirmed);
+    public record RegisterDto(string FirstName,string LastName,string Email,string Password,string ConfirmPassword);
     
 }

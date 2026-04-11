@@ -1,4 +1,5 @@
 ﻿using EcommerceDomain.Entities;
+using EcommerceInfrastructure.Identity;
 using MediaRTutorialApplication.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

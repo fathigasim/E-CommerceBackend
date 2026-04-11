@@ -1,6 +1,5 @@
 ﻿using EcommerceApplication.Common.Settings;
 using EcommerceApplication.Features.Products.DTOs;
-using MediaRTutorialApplication.DTOs;
 using MediatR;
 using System;
 using System.Collections.Generic;

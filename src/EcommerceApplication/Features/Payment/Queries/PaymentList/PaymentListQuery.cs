@@ -1,4 +1,5 @@
 ﻿using EcommerceApplication.Common;
+using EcommerceApplication.Common.EcommerceApplication.Common;
 using EcommerceApplication.Common.Settings;
 using EcommerceApplication.Features.Payment.DTOs;
 using MediaRTutorialApplication.Features.Payment.Queries.GetPaymentById;

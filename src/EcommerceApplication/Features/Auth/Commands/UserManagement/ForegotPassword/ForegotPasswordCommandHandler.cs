@@ -3,7 +3,6 @@ using EcommerceApplication.Interfaces;
 using EcommerceDomain.Entities;
 using EcommerceDomain.Interfaces;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -17,21 +16,22 @@ namespace EcommerceApplication.Features.Auth.Commands.UserManagement.ResetPasswo
 {
     public class ForegotPasswordCommandHandler : IRequestHandler<ForegotPasswordCommand, Result<string>>
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        
+        private readonly IIdentityService _identityService;
         private readonly ILogger<ForegotPasswordCommandHandler> _logger;
         private readonly IEmailSender _emailSender;
         private readonly IConfiguration _config;
-        public ForegotPasswordCommandHandler(UserManager<ApplicationUser> userManager,
+        public ForegotPasswordCommandHandler(IIdentityService identityService,
             ILogger<ForegotPasswordCommandHandler> logger, IEmailSender emailSender, IConfiguration config)
         {
-            _userManager = userManager;
+            _identityService = identityService;
             _logger = logger;
             _emailSender = emailSender;
             _config = config;   
         }
         public async Task<Result<string>> Handle(ForegotPasswordCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByEmailAsync(request.Email);
+            var user = await _identityService.FindByEmailAsync(request.Email);
             if (user == null)
             {
                 // Don't reveal that the user doesn't exist
@@ -43,7 +43,7 @@ namespace EcommerceApplication.Features.Auth.Commands.UserManagement.ResetPasswo
                 //};
             }
 
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var token = await _identityService.GeneratePasswordResetTokenAsync(user);
 
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
             var resetLink = $"{_config["FrontendUrl:FrontendUrl"]}/reset-password?email={user.Email}&token={encodedToken}";

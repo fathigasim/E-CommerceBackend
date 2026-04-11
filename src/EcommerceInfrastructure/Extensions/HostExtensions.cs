@@ -1,4 +1,6 @@
-﻿using MediaRTutorialApplication.Interfaces;
+﻿using EcommerceInfrastructure.Persistance;
+using MediaRTutorialApplication.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -19,6 +21,11 @@ namespace EcommerceInfrastructure.Extensions
 
             try
             {
+                var context = services.GetRequiredService<AppDbContext>();
+
+                // THIS LINE IS KEY: It applies any pending migrations 
+                // and creates the database/tables if they don't exist.
+                await context.Database.MigrateAsync();
                 var seeder = services.GetRequiredService<IDbSeeder>();
                 await seeder.SeedAsync();
             }

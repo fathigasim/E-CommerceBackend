@@ -1,7 +1,8 @@
-﻿using EcommerceDomain.Entities;
+﻿using EcommerceApplication.Interfaces;
+using EcommerceDomain.Entities;
+using MediaRTutorialApplication.Interfaces;
 using MediaRTutorialDomain.Entities;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,29 +13,28 @@ namespace EcommerceApplication.Features.Auth.Commands.Logout
 {
     public class LogoutCommandHandler : IRequestHandler<LogoutCommand, LogoutResponse>
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-
+  
+        private readonly IIdentityService _identityService;
         public LogoutCommandHandler(
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+        
+            IIdentityService identityService)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
+       
+            _identityService = identityService;
         }
 
         public async Task<LogoutResponse> Handle(LogoutCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByIdAsync(request.UserId);
-
-            if (user != null)
+            //var user = await _userManager.FindByIdAsync(request.UserId);
+            var userDto = await _identityService.FindByIdAsync(request.UserId);
+            if (userDto != null)
             {
-                user.RefreshToken = null;
-                user.RefreshTokenExpiry = null;
-                await _userManager.UpdateAsync(user);
+                userDto.RefreshToken = null;
+                userDto.RefreshTokenExpiry = null;
+                await _identityService.UpdateAsync(userDto);
             }
 
-            await _signInManager.SignOutAsync();
+            await _identityService.SignOutAsync();
 
             return new LogoutResponse
             {

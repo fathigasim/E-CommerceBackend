@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EcommerceDomain.Entities
+namespace EcommerceInfrastructure.Identity
 {
     public class ApplicationUser : IdentityUser
     {

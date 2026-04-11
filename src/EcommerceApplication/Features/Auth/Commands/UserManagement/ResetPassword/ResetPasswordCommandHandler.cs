@@ -1,7 +1,8 @@
 ﻿using EcommerceApplication.Common.Settings;
+using EcommerceApplication.Interfaces;
 using EcommerceDomain.Entities;
+using MediaRTutorialApplication.Interfaces;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -13,18 +14,18 @@ namespace EcommerceApplication.Features.Auth.Commands.UserManagement.ResetPasswo
 {
     public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, Result<string>>
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IIdentityService _identityService;
         private readonly ILogger<ResetPasswordCommandHandler> _logger;
-        public ResetPasswordCommandHandler(UserManager<ApplicationUser> userManager,
+        public ResetPasswordCommandHandler(IIdentityService identityService,
             ILogger<ResetPasswordCommandHandler> logger
             )
         {
-            _userManager = userManager;
+            _identityService = identityService;
             _logger = logger;
         }
         public async Task<Result<string>> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByEmailAsync(request.Email);
+            var user = await _identityService.FindByEmailAsync(request.Email);
             if (user == null)
             {
                 return
@@ -47,13 +48,8 @@ namespace EcommerceApplication.Features.Auth.Commands.UserManagement.ResetPasswo
             //    return Result<string>.Failure("Invalid token format");
             //}
 
-            var result = await _userManager.ResetPasswordAsync(user, decodedToken, request.NewPassword);
-            if (!result.Succeeded)
-            {
-                return Result<string>.Failure($"Password change failed ");
-            }
-            _logger.LogInformation("Password changed for user {User}", user);
-            return Result<string>.Success("Password changed successfully.");
+            var result = await _identityService.ResetPasswordAsync(user, decodedToken, request.NewPassword);
+           return result;
         }
 
 

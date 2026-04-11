@@ -1,66 +1,33 @@
 ﻿
+using EcommerceApplication.Common.Settings;
+using EcommerceApplication.DTOs;
 using EcommerceApplication.Features.Auth.Notifications.RegisterNotification;
+using EcommerceApplication.Interfaces;
 using EcommerceDomain.Entities;
+using MediaRTutorialApplication.Interfaces;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 
 
 namespace EcommerceApplication.Features.Auth.Commands.Register
 {
-    public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterResponse>
+    public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<string>>
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IIdentityService _identityService;
         private readonly IMediator _mediator;
-        public RegisterCommandHandler(UserManager<ApplicationUser> userManager, IMediator mediator)
+        public RegisterCommandHandler(IIdentityService identityService, IMediator mediator)
         {
-            _userManager = userManager;
+            _identityService = identityService;
             _mediator = mediator;
         }
 
-        public async Task<RegisterResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
+        public async Task<Result<string>> Handle(RegisterCommand request, CancellationToken cancellationToken)
         {
-            var existingUser = await _userManager.FindByEmailAsync(request.Email);
-            if (existingUser != null)
-            {
-                return new RegisterResponse
-                {
-                    Succeeded = false,
-                    Errors = new List<string> { "User with this email already exists" }
-                };
-            }
-
-            var user = new ApplicationUser
-            {
-                Email = request.Email,
-                UserName = request.UserName,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                DateCreated = DateTime.UtcNow,
-                IsActive = true
-            };
-
-            var result = await _userManager.CreateAsync(user, request.Password);
-
-            if (result.Succeeded)
-            {
-                await _mediator.Publish(new UserRegisteredNotification(request.Email, request.UserName));
-                // Optionally add default role
-                await _userManager.AddToRoleAsync(user, "User");
-
-                return new RegisterResponse
-                {
-                    Succeeded = true,
-                    UserId = user.Id,
-                    Email = user.Email
-                };
-            }
-
-            return new RegisterResponse
-            {
-                Succeeded = false,
-                Errors = result.Errors.Select(e => e.Description).ToList()
-            };
+               var registerDto = new RegisterDto(request.FirstName,request.LastName,request.Email,request.Password,request.ConfirmPassword);
+             var result= await _identityService.RegisterAsync(registerDto);
+           await _mediator.Publish(new UserRegisteredNotification(request.Email,request.FirstName),cancellationToken);
+            return result;
         }
+        
     }
 
     //public class RegisterCommandHandler

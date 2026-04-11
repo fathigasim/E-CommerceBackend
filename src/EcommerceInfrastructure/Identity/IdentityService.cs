@@ -1,7 +1,10 @@
-﻿using EcommerceApplication.Common.Settings;
+﻿using AutoMapper;
+using Azure.Core;
+using EcommerceApplication.Common.Settings;
 using EcommerceApplication.DTOs;
-using EcommerceDomain.Entities;
-using MediaRTutorialApplication.DTOs;
+using EcommerceApplication.Features.Auth.Commands.Login;
+using EcommerceApplication.Features.Auth.Dtos;
+using EcommerceApplication.Interfaces;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -15,28 +18,32 @@ using System.Text;
 
 namespace EcommerceInfrastructure.Identity
 {
-    public class IdentityService : MediaRTutorialApplication.Interfaces.IIdentityService
+    public class IdentityService :IIdentityService
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IAuthenticationService _authenticationService;
         private readonly JwtSettings _jwtSettings;
-
+        private readonly IMapper _mapper;
         public IdentityService(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IOptions<JwtSettings> jwtSettings)
+            IAuthenticationService authenticationService,
+            IOptions<JwtSettings> jwtSettings,
+            IMapper mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _authenticationService = authenticationService;
             _jwtSettings = jwtSettings.Value;
+            _mapper = mapper;
         }
-
-        public async Task<Result<AuthResponseDto>> RegisterAsync(RegisterDto dto)
+      
+        public async Task<Result<string>> RegisterAsync(RegisterDto dto)
         {
             var existingUser = await _userManager.FindByEmailAsync(dto.Email);
             if (existingUser != null)
-                return Result<AuthResponseDto>.Failure("Email is already registered.");
-
+                return Result<string>.Failure("Email is already registered.");
             var user = new ApplicationUser
             {
                 FirstName = dto.FirstName,
@@ -51,41 +58,70 @@ namespace EcommerceInfrastructure.Identity
             if (!result.Succeeded)
             {
                 var errors = result.Errors.Select(e => e.Description).ToList();
-                return Result<AuthResponseDto>.Failure(errors);
+                return Result<string>.Failure(errors);
             }
 
             await _userManager.AddToRoleAsync(user, "User");
-
-            var token = await GenerateJwtToken(user);
-
-            return Result<AuthResponseDto>.Success(new AuthResponseDto(
-                user.Id,
-                user.Email!,
-                token,
-                DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes)
-            ));
+            
+             var userDto= _mapper.Map<UserDto>(user);
+            // var token = await GenerateJwtToken(user);
+            var (accessToken, refreshToken) = await _authenticationService.GenerateTokens(userDto);
+            //return Result<LoginResponse>.Success(
+            // new   LoginResponse
+            //{
+            //    Succeeded = true,
+            //    AccessToken = accessToken,
+            //    RefreshToken = refreshToken,
+            //    Expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
+            //    User = new UserDto
+            //    {
+            //        Id = user.Id,
+            //        Email = user.Email,
+            //        UserName = user.UserName,
+            //        FirstName = user.FirstName,
+            //        LastName = user.LastName,
+            //        Roles = roles.ToList()
+            //    }
+            //}
+            
+            //);
+            return Result<string>.Success("User registered successfully.");
         }
 
-        public async Task<Result<AuthResponseDto>> LoginAsync(LoginDto dto)
+        public async Task<Result<LoginResponse>> LoginAsync(LoginDto dto)
         {
-            var user = await _userManager.FindByEmailAsync(dto.Email);
-            if (user == null)
-                return Result<AuthResponseDto>.Failure("Invalid email or password.");
 
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            var userDto= _mapper.Map<UserDto>(user);
+            if (user == null)
+                return Result<LoginResponse>.Failure("Invalid email or password.");
+            if(!user.IsActive)
+                return Result<LoginResponse>.Failure("User account is inactive. Please contact support.");
             var result = await _signInManager
                 .CheckPasswordSignInAsync(user, dto.Password, lockoutOnFailure: false);
 
             if (!result.Succeeded)
-                return Result<AuthResponseDto>.Failure("Invalid email or password.");
+                return Result<LoginResponse>.Failure("Invalid email or password.");
 
-            var token = await GenerateJwtToken(user);
-
-            return Result<AuthResponseDto>.Success(new AuthResponseDto(
-                user.Id,
-                user.Email!,
-                token,
-                DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes)
-            ));
+            //var token = await GenerateJwtToken(user);
+                                   var roles=  await _userManager.GetRolesAsync(user);
+            var (accessToken, refreshToken) = await _authenticationService.GenerateTokens(userDto);
+            return Result<LoginResponse>.Success(new LoginResponse() { 
+                
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                Expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
+                 User = new UserDto
+                 {
+                     Id = user.Id,
+                     Email = user.Email,
+                     UserName = user.UserName,
+                     FirstName = user.FirstName,
+                     LastName = user.LastName,
+                     Roles = roles.ToList()
+                 }
+            }
+            );
         }
 
         private async Task<string> GenerateJwtToken(ApplicationUser user)
@@ -115,6 +151,60 @@ namespace EcommerceInfrastructure.Identity
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<UserDto> FindByIdAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            return _mapper.Map<UserDto>(user);
+        }
+
+        public async Task UpdateAsync(UserDto userDto)
+        {
+            var user = await _userManager.FindByIdAsync(userDto.Id);
+            if (user != null)
+            {
+                _mapper.Map(userDto, user);
+                await _userManager.UpdateAsync(user);
+            }
+        }
+
+        public async Task SignOutAsync()
+        {
+            await _signInManager.SignOutAsync();
+        }
+
+        public async Task<string> GeneratePasswordResetTokenAsync(UserDto user)
+        {
+            return  await _userManager.GeneratePasswordResetTokenAsync(_mapper.Map<ApplicationUser>(user));
+        }
+
+        public async Task<UserDto> FindByEmailAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            return _mapper.Map<UserDto>(user);
+        }
+
+        public async Task<Result<string>> ResetPasswordAsync(UserDto user, string token, string newPassword)
+        {
+             var result = await _userManager.ResetPasswordAsync(_mapper.Map<ApplicationUser>(user), token, newPassword);
+            if (!result.Succeeded)
+            {
+                return Result<string>.Failure($"Password change failed ");
+            }
+         //   _logger.LogInformation("Password changed for user {User}", user);
+            return Result<string>.Success("Password changed successfully.");
+        }
+
+        public async Task<Result<string>> DeleteAsync(string userId) {          
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                await _userManager.DeleteAsync(user);
+                return Result<string>.Success("User deleted successfully.");
+            }
+            return Result<string>.Failure("User not found.");
         }
     }
 

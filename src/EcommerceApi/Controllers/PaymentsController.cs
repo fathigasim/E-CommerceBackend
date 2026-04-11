@@ -14,7 +14,7 @@ namespace MediaRTutorial.Controllers
     [Route("api/[controller]")]
     [ApiController]
    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,Policy ="AdminOrUser")]
-    //[Authorize(Policy = "AdminOrUser")]
+    [Authorize(Policy = "AdminOrUser")]
     public class PaymentsController : ControllerBase
     {
         private readonly IMediator _mediator;

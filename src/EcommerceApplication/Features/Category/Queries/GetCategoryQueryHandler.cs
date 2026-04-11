@@ -2,7 +2,6 @@
 using EcommerceApplication.Common.Settings;
 using EcommerceApplication.DTOs;
 using EcommerceDomain.Interfaces;
-using MediaRTutorialApplication.DTOs;
 using MediatR;
 using System;
 using System.Collections.Generic;

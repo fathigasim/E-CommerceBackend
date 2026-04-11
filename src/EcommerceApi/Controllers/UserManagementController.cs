@@ -1,4 +1,5 @@
-﻿using EcommerceApplication.Features.Auth.Commands.UserManagement.ResetPassword;
+﻿using EcommerceApplication.Features.Auth.Commands.UserManagement.DeleteUser;
+using EcommerceApplication.Features.Auth.Commands.UserManagement.ResetPassword;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -56,9 +57,11 @@ namespace EcommerceApi.Controllers
         }
 
         // DELETE api/<UserManagementController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("{UserId}")]
+        public async Task<IActionResult> DeleteUserAsync(string UserId)
         {
+            var result = await _mediator.Send(new DeleteUserCommand(UserId));
+            return Ok(result);
         }
     }
 }
