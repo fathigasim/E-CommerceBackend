@@ -50,22 +50,29 @@ namespace MediaRTutorialApplication.Features.Payment.Commands.HandleWebhook
 
             payment.UpdatedAt = DateTime.UtcNow;
             await _unitOfWork.Payments.UpdateAsync(payment, cancellationToken);
-           var orderToUpdate= await _unitOfWork.Orders.GetByIdAsync(payment.OrderId.Value, cancellationToken);
-            orderToUpdate.Status = payment.Status switch
+            //if(payment.OrderId is null)
+            //{
+            //    _logger.LogWarning("Payment {Id} has no associated order", payment.Id);
+            //    return Result<bool>.Failure("Payment has no associated order");
+            //}
+              var orderToUpdate= await _unitOfWork.Orders.GetByIdAsync(payment.OrderId.Value, cancellationToken);
+            if (payment.OrderId != null)
             {
-                PaymentStatus.Succeeded => OrderStatus.Processing,
-                PaymentStatus.Failed => OrderStatus.Cancelled,
-                PaymentStatus.Cancelled => OrderStatus.Cancelled,
-                // PaymentStatus.Refunded => OrderStatus.Refunded,
-                _ => orderToUpdate.Status
-            };
+                orderToUpdate.Status = payment.Status switch
+                {
+                    PaymentStatus.Succeeded => OrderStatus.Processing,
+                    PaymentStatus.Failed => OrderStatus.Cancelled,
+                    PaymentStatus.Cancelled => OrderStatus.Cancelled,
 
-            _unitOfWork.Orders.Update(orderToUpdate);
+                    _ => payment.Order.Status
+                };
+            }
+           // _unitOfWork.Orders.Update(orderToUpdate);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             _logger.LogInformation(
               "Update {OrderId} updated to ", payment.OrderId);
             _logger.LogInformation(
-                "Payment {Id} updated to {Status}", payment.Id, payment.Status);
+                "Payment {Id} status updated to {Status}", payment.Id, payment.Status);
 
             return Result<bool>.Success(true);
         }

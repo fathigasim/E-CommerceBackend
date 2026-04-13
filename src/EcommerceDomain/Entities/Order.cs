@@ -14,7 +14,8 @@ namespace EcommerceDomain.Entities
    public class Order : BaseEntity, IAuditableEntity
 {
     public string UserId { get; set; } = string.Empty;
-    public DateTime OrderDate { get; set; } = DateTime.UtcNow;
+        public string OrderNumber { get; set; }= default!;
+        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
     public decimal TotalAmount { get; set; }
     

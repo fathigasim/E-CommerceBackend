@@ -23,6 +23,9 @@ namespace EcommerceInfrastructure.Persistance
         {
             base.OnModelCreating(modelBuilder); //  REQUIRED
 
+     
+            
+
             modelBuilder.Entity<Order>().HasKey(o => o.Id);
             modelBuilder.Entity<OrderItem>(entity =>
             {

@@ -33,6 +33,7 @@ namespace MediaRTutorial.Controllers
         {
             // Placeholder for getting orders
           var result=await  _mediator.Send(new GetPagedOrdersQuery(q,pageNumber,pageSize));
+
             return Ok(result);
         }
 

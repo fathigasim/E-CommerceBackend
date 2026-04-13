@@ -129,6 +129,7 @@ namespace EcommerceInfrastructure
             services.AddScoped<IFileStorageService, LocalFileStorageService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IIdentityService,IdentityService>();
+            services.AddScoped<IOrderNumberService, OrderNumberService>();
             services.AddHttpClient();
             services.AddScoped<IHttpClientService, HttpClientService>();
             services.AddTransient<IEmailSender,EmailSender>();

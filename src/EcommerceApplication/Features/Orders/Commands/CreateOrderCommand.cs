@@ -8,8 +8,8 @@ namespace EcommerceApplication.Features.Orders.Commands
     
 
     // CreateOrderCommand.cs
-    public class CreateOrderCommand : IRequest<Result<Unit>>
+    public class CreateOrderCommand : IRequest<Result<Guid>>
     {
-        public string? PaymentIntentId { get; set; }
+        //public string? PaymentIntentId { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿
 using EcommerceApplication.Common.Settings;
+using EcommerceApplication.Features.Orders.Commands;
 using EcommerceDomain.Entities;
 using EcommerceDomain.Enums;
 using EcommerceDomain.Interfaces;
@@ -17,41 +18,41 @@ namespace MediaRTutorialApplication.Features.Payment.Commands.CreatePaymentInten
      : IRequestHandler<CreatePaymentIntentCommand, Result<CreatePaymentIntentResponse>>
     {
         private readonly IPaymentService _paymentService;
-       private readonly IBasketContextAccessor _contextAccessor;
+       private readonly IBasketContextAccessor _basketContextAccessor;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<CreatePaymentIntentHandler> _logger;
+        private readonly IMediator _mediator;
+        
 
         public CreatePaymentIntentHandler(
             IPaymentService paymentService,
-            IBasketContextAccessor contextAccessor,
+            IBasketContextAccessor basketContextAccessor,
             IUnitOfWork unitOfWork,
-            ILogger<CreatePaymentIntentHandler> logger)
+            ILogger<CreatePaymentIntentHandler> logger,
+             IMediator mediator)
         {
             _paymentService = paymentService;
-            _contextAccessor = contextAccessor;
+            _basketContextAccessor = basketContextAccessor;
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _mediator = mediator;
         }
 
         public async Task<Result<CreatePaymentIntentResponse>> Handle(
             CreatePaymentIntentCommand request,
             CancellationToken cancellationToken)
         {
+            var transaction =  _unitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
-                var basket = await _unitOfWork.Baskets.GetByIdAsync(_contextAccessor.GetBasketId(), includeItems: true);
+               
+                var basket = await _unitOfWork.Baskets.GetByIdAsync(_basketContextAccessor.GetBasketId(), includeItems: true);
                 var basketItems = basket?.BasketItems ?? new List<BasketItem>();
-                // 1. Call Stripe via our abstraction
-            //    var metadata = new Dictionary<string, string>
-            //{
-            //    { "userId", request.UserId },
-            //        {"productName",string.Join(" ,",basketItems.Select(p=>p.Product.Name)) }
-
-            //};
+                var orderId = await _mediator.Send(new CreateOrderCommand());
                 var metadata = new Dictionary<string, string>
         {
             { "userId", request.UserId },
-            //{ "basketId", basket.BasketId.ToString() },
+            { "orderId", orderId.Data.ToString() },
             { "productNames", string.Join(", ", basketItems.Select(p => p.Product.Name)) },
             { "productIds", string.Join(", ", basketItems.Select(p => p.ProductId.ToString())) },
             { "itemCount", basketItems.Count.ToString() }
@@ -68,6 +69,7 @@ namespace MediaRTutorialApplication.Features.Payment.Commands.CreatePaymentInten
                 {
                  //   Id = Guid.NewGuid(),
                     UserId = request.UserId,
+                    OrderId =orderId.Data,
                     Amount = request.Amount,
                     Currency = request.Currency,
                     StripePaymentIntentId = intentResult.PaymentIntentId,
@@ -77,6 +79,8 @@ namespace MediaRTutorialApplication.Features.Payment.Commands.CreatePaymentInten
 
                 await  _unitOfWork.Payments.AddAsync(payment, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
+                await _unitOfWork.CommitTransactionAsync(cancellationToken);
+                _basketContextAccessor.ClearBasketId();
                 // 3. Return client secret to frontend
                 return Result<CreatePaymentIntentResponse>.Success(
                     new CreatePaymentIntentResponse(
@@ -86,6 +90,7 @@ namespace MediaRTutorialApplication.Features.Payment.Commands.CreatePaymentInten
             }
             catch (Exception ex)
             {
+                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 _logger.LogError(ex, "Failed to create payment intent");
                 return Result<CreatePaymentIntentResponse>.Failure(ex.Message);
             }
